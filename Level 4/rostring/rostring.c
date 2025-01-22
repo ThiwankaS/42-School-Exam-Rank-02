@@ -1,51 +1,53 @@
 #include <unistd.h>
 
-void write_word(char *start, char *end)
+int write_word(char *line, int index)
 {
-    while (start < end)
+    int count = 0;
+
+    char *start = line + index;
+
+    while (*start && *start != ' ' && *start != '\t')
     {
         write(1, start, 1);
         start++;
+        count++;
     }
+
+    return count;
 }
 
 int main(int argc, char **argv)
 {
     char *str;
-    char *first_word_start;
-    char *first_word_end;
+    int index = 0;
+    int first_word_stat;
 
-    if (argc > 1)
+    if (argc == 2)
     {
         str = argv[1];
-        while (*str == ' ' || *str == '\t') 
-            str++;
-        first_word_start = str;
-        while (*str && *str != ' ' && *str != '\t')
-            str++;
-        first_word_end = str;
-        while (*str == ' ' || *str == '\t')
-            str++;
-        if (*str) {
-            while (*str)
-            {
-                if (*str == ' ' || *str == '\t')
-                {
-                    while (*str == ' ' || *str == '\t')
-                        str++;
-                    if (*str)
-                        write(1, " ", 1);
-                } 
-                else 
-                {
-                    write(1, str, 1);
-                    str++;
-                }
-            }
+
+        while (str[index] == ' ' || str[index] == '\t')
+            index++;
+            
+        first_word_stat = index;
+        
+        while (str[index] && str[index] != ' ' && str[index] != '\t')
+                index++;
+
+        while (str[index])
+        {
+            int written = write_word(str, index);
+
+            index += written;
+
+            while (str[index] == ' ' || str[index] == '\t')
+                index++;
+
             write(1, " ", 1);
         }
-        write_word(first_word_start, first_word_end);
+        write_word(argv[1], first_word_stat);
     }
+
     write(1, "\n", 1);
     return 0;
 }
